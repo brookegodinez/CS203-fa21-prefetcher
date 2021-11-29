@@ -35,7 +35,6 @@ Request Prefetcher::getRequest(u_int32_t cycle) {
 	return _nextReq; }
 
 void Prefetcher::completeRequest(u_int32_t cycle) {
-
 	_ready = false; }
 
 
@@ -46,19 +45,29 @@ void Prefetcher::cpuRequest(Request req) {
 			if (global_table[global_state] < 4){ //check if global state needs t be updated
 				global_table[global_state]++;
 			} //decrement and increment accordingly 
-			if (global_state<15){
-			global_state++;
+			// if (global_state<15){
+			// global_state++;
+			// }
+			if (global_state >= 8){
+				global_state -= 8;
 			}
+			global_state *= 2;
+			global_state += 1;
 			
 		}
-		else {//if not correct the global state is updated
+	else {//if not correct the global state is updated
 			global_stride_table[global_state] = req.addr - last_reference.addr;
 			if (global_table[global_state] > 0){ // 
 				global_table[global_state]--;
 			}
-			if(global_state>0){
-				global_state--;
+			// if(global_state>0){
+			// 	global_state--;
+			// }
+			if (global_state >= 8){
+				global_state -= 8;
 			}
+			global_state *= 2;
+			// global_state += 1;
 		}
 	if(!_ready && !req.HitL1) {		
 		for (int i = 0; i < pre_array.size(); i++){
@@ -89,7 +98,8 @@ void Prefetcher::cpuRequest(Request req) {
 			}
 		}
 	}			//if not found in references global fetcher is used
-				if (global_table[global_state] >= 2 && !found_entry){
+				if (global_table[global_state] >= 2 && !found_entry)
+				{
 				_nextReq.addr = req.addr + global_stride_table[global_state];//global_stride;
 				_ready = true; 
 					for (int j = 0; j < 5; j++){
